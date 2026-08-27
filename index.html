@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>H2 Organic Elucidation Helper</title>
+<style>
+:root {
+ --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#dfe4ec;
+ --accent:#315efb;--accent2:#eaf0ff;--good:#087443;--shadow:0 12px 30px rgba(20,31,55,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#172554,#315efb);color:white;padding:34px 20px 30px}
+.wrap{max-width:1180px;margin:auto}
+h1{margin:0 0 8px;font-size:clamp(28px,4vw,44px);letter-spacing:-.03em}
+header p{margin:0;max-width:850px;color:#dbe5ff;line-height:1.55}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.navin{max-width:1180px;margin:auto;display:flex;gap:8px;padding:10px 20px;overflow:auto}
+.navbtn{border:0;background:transparent;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;color:#475467;white-space:nowrap}
+.navbtn.active,.navbtn:hover{background:var(--accent2);color:var(--accent)}
+main{padding:26px 20px 50px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:22px}
+.card h2{margin:0 0 7px;font-size:22px}
+.sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 17px}
+.searchrow{display:flex;gap:9px}
+input{width:100%;border:1px solid #cfd6e2;border-radius:12px;padding:14px 15px;font-size:15px;outline:none;background:white}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px #eaf0ff}
+button.primary{border:0;background:var(--accent);color:white;border-radius:12px;padding:0 18px;font-weight:800;cursor:pointer}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.chip{border:1px solid var(--line);background:#fafbff;border-radius:999px;padding:7px 10px;font-size:12px;cursor:pointer;color:#475467}
+.chip:hover{border-color:#b8c6ff;color:var(--accent)}
+.results{margin-top:18px;display:grid;gap:11px}
+.result{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fcfdff}
+.badge{display:inline-block;background:var(--accent2);color:var(--accent);padding:5px 8px;border-radius:7px;font-size:11px;font-weight:800;margin-bottom:7px}
+.result h3{margin:0 0 5px;font-size:16px}
+.meta{color:var(--muted);font-size:13px;line-height:1.5}
+.fg{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.fgtag{font-size:12px;border-radius:7px;padding:5px 8px;background:#eef9f3;color:var(--good);font-weight:700}
+.empty{color:var(--muted);padding:12px 2px;font-size:14px}
+.section{display:none}
+.section.active{display:block}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fafbff}
+.stat strong{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--muted)}
+.callout{border-left:4px solid var(--accent);background:#f4f7ff;padding:13px 15px;border-radius:8px;color:#475467;line-height:1.55;font-size:13px;margin-top:15px}
+footer{max-width:1180px;margin:0 auto;padding:0 20px 45px;color:var(--muted);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>H2 Organic Elucidation Helper</h1>
+<p>Two separate search tools for elucidation questions: search by <b>observation</b> to find possible deductions, or search by <b>reagent & conditions</b> to find reactions and the functional groups involved.</p>
+</div></header>
+<nav><div class="navin">
+<button class="navbtn active" data-tab="home">Elucidation Search</button>
+<button class="navbtn" data-tab="allrxns">Reaction Library</button>
+<button class="navbtn" data-tab="how">How to use</button>
+</div></nav>
+<main class="wrap">
+<section id="home" class="section active">
+<div class="grid">
+<div class="card">
+<h2>① Observation → possible deductions</h2>
+<p class="sub">Type what you see in the question. The search returns possible reagents, reaction types, functional groups and the deduction you can write.</p>
+<div class="searchrow"><input id="obsSearch" placeholder="e.g. orange bromine decolourises, white ppt"><button class="primary" onclick="searchObs()">Search</button></div>
+<div class="chips">
+<button class="chip" onclick="setObs('orange bromine decolourises')">Br₂ decolourises</button>
+<button class="chip" onclick="setObs('orange precipitate 2,4-DNPH')">2,4-DNPH</button>
+<button class="chip" onclick="setObs('effervescence sodium hydrogencarbonate')">NaHCO₃ effervescence</button>
+<button class="chip" onclick="setObs('yellow precipitate iodine')">Iodoform</button>
+<button class="chip" onclick="setObs('purple permanganate colourless')">KMnO₄</button>
+<button class="chip" onclick="setObs('violet FeCl3')">FeCl₃</button>
+</div>
+<div id="obsResults" class="results"></div>
+</div>
+<div class="card">
+<h2>② Reagent & conditions → reactions</h2>
+<p class="sub">Enter a reagent, condition, or part of a reaction. Results show the possible transformation, reaction type and functional group(s) reacting.</p>
+<div class="searchrow"><input id="rxnSearch" placeholder="e.g. LiAlH4 dry ether, hot acidified KMnO4"><button class="primary" onclick="searchRxn()">Search</button></div>
+<div class="chips">
+<button class="chip" onclick="setRxn('LiAlH4 dry ether')">LiAlH₄</button>
+<button class="chip" onclick="setRxn('hot acidified KMnO4')">Hot KMnO₄</button>
+<button class="chip" onclick="setRxn('aqueous Br2')">Aqueous Br₂</button>
+<button class="chip" onclick="setRxn('ethanolic KCN reflux')">KCN / reflux</button>
+<button class="chip" onclick="setRxn('conc H2SO4 heat')">Conc. H₂SO₄</button>
+<button class="chip" onclick="setRxn('NaOH aqueous heat')">NaOH(aq)</button>
+</div>
+<div id="rxnResults" class="results"></div>
+</div>
+</div>
+<div class="card" style="margin-top:22px">
+<h2>Quick reference</h2>
+<p class="sub">Useful exam-writing reminder from the supplied elucidation notes.</p>
+<div class="callout"><b>When explaining a reaction, aim to state:</b> reaction type → deduction → functional group involved → number of functional groups when quantitative data is given → position of the functional group where relevant → identity of any gas/precipitate → balanced equation where necessary.</div>
+<div class="statgrid">
+<div class="stat"><strong id="obsCount">0</strong><span>observation patterns</span></div>
+<div class="stat"><strong id="rxnCount">0</strong><span>reaction entries</span></div>
+<div class="stat"><strong>2</strong><span>separate search boxes</span></div>
+</div>
+</div>
+</section>
+<section id="allrxns" class="section">
+<div class="card">
+<h2>Reaction Library</h2>
+<p class="sub">Search the same reagent/condition database without leaving this page.</p>
+<div class="searchrow"><input id="librarySearch" placeholder="Search reagent, product, reaction type, or functional group"><button class="primary" onclick="librarySearch()">Search</button></div>
+<div id="libraryResults" class="results"></div>
+</div>
+</section>
+<section id="how" class="section">
+<div class="card">
+<h2>How to use it for elucidation</h2>
+<p class="sub">This tool is designed as a deduction aid rather than an automatic structure generator.</p>
+<ol style="line-height:1.8;color:#475467">
+<li>Put the exact <b>observation</b> into box ①. Read the possible functional groups and reaction type.</li>
+<li>Use other observations in the question to eliminate possibilities.</li>
+<li>Put a <b>reagent + conditions</b> into box ② when you want to work forwards from a functional group.</li>
+<li>For quantitative questions, check how many moles of reagent/gas/product are involved; the supplied notes specifically emphasise using this to deduce the number of functional groups.</li>
+<li>When product structures or molecular formulae are supplied, work backwards and compare carbon numbers. The notes highlight step-up reactions such as KCN/HCN and step-down reactions such as oxidative cleavage, side-chain oxidation and iodoform reactions.</li>
+</ol>
+<div class="callout"><b>Important:</b> “possible” means the observation can support more than one deduction. Do not identify a unique structure from one test alone unless the other evidence rules out alternatives.</div>
+</div>
+</section>
+</main>
+<footer><b>Source basis:</b> the uploaded TMJC JC2 H2 Organic Chemistry Concept Maps, Nanyang Junior College 9476 H2 Chemistry 2026 “Elucidation of Organic Structures” notes, and the accompanying exercise answers. The reaction/deduction terminology follows those materials. This is a study aid, not a replacement for your school notes.</footer>
+<script>
+const observations = [{"observation": "orange aqueous bromine decolourises", "keywords": ["bromine", "br2", "aqueous bromine", "orange", "decolourises", "decolorises"], "reagent": "Aqueous Br₂", "reaction": "Electrophilic addition", "functional_groups": ["Alkene"], "deduction": "An alkene is present."}, {"observation": "orange aqueous bromine decolourises with white precipitate / white fumes", "keywords": ["bromine", "br2", "white precipitate", "white ppt", "white fumes", "hbr"], "reagent": "Aqueous Br₂", "reaction": "Electrophilic substitution", "functional_groups": ["Phenol", "Phenylamine"], "deduction": "A phenol or phenylamine is present; with excess Br₂(aq), a white substituted product may form."}, {"observation": "purple acidified permanganate turns colourless", "keywords": ["kmno4", "permanganate", "purple", "colourless", "colorless", "acidified"], "reagent": "KMnO₄(aq), H₂SO₄(aq), heat under reflux", "reaction": "Oxidation", "functional_groups": ["1° alcohol", "2° alcohol", "Aldehyde", "Alkene"], "deduction": "The compound contains a functional group that can be oxidised. A 3° alcohol is not oxidised."}, {"observation": "purple permanganate turns colourless with CO2 effervescence", "keywords": ["kmno4", "permanganate", "purple", "colourless", "co2", "effervescence", "terminal alkene"], "reagent": "Acidified KMnO₄, heat", "reaction": "Strong oxidation / oxidative cleavage", "functional_groups": ["Terminal alkene"], "deduction": "A terminal alkene may be oxidatively cleaved, producing CO₂ from the terminal carbon."}, {"observation": "purple permanganate turns colourless and white precipitate appears on cooling", "keywords": ["kmno4", "permanganate", "purple", "white precipitate", "cooling", "methyl side chain"], "reagent": "Acidified KMnO₄, heat", "reaction": "Side-chain oxidation", "functional_groups": ["Alkylbenzene with methyl side chain"], "deduction": "A benzene ring containing a methyl side chain is indicated."}, {"observation": "purple permanganate turns colourless with CO2 effervescence and white precipitate on cooling", "keywords": ["kmno4", "permanganate", "co2", "effervescence", "white precipitate", "cooling", "ethylbenzene"], "reagent": "Acidified KMnO₄, heat", "reaction": "Side-chain oxidation", "functional_groups": ["Alkylbenzene with side chain longer than one carbon"], "deduction": "A benzene ring contains an alkyl side chain longer than one carbon, e.g. ethylbenzene."}, {"observation": "orange precipitate with 2,4-DNPH", "keywords": ["2,4-dnph", "dnph", "orange precipitate", "orange ppt", "hydrazone"], "reagent": "2,4-DNPH, heat", "reaction": "Condensation", "functional_groups": ["Aldehyde", "Ketone"], "deduction": "A carbonyl compound is present."}, {"observation": "no orange precipitate with 2,4-DNPH", "keywords": ["2,4-dnph", "dnph", "no reaction", "no orange", "no precipitate"], "reagent": "2,4-DNPH", "reaction": "No condensation", "functional_groups": ["No aldehyde or ketone"], "deduction": "A carbonyl group of an aldehyde/ketone type is absent."}, {"observation": "red precipitate with Fehling's reagent", "keywords": ["fehling", "red precipitate", "red ppt", "brick red", "copper"], "reagent": "Fehling's reagent, heat", "reaction": "Oxidation", "functional_groups": ["Aliphatic aldehyde"], "deduction": "An aliphatic aldehyde is present."}, {"observation": "no change with Fehling's reagent", "keywords": ["fehling", "no change", "no reaction"], "reagent": "Fehling's reagent", "reaction": "No oxidation", "functional_groups": ["Not an aliphatic aldehyde"], "deduction": "A ketone does not give the Fehling's oxidation test."}, {"observation": "silver deposit with Tollens' reagent", "keywords": ["tollens", "silver mirror", "silver deposit", "silver"], "reagent": "Tollens' reagent, heat", "reaction": "Oxidation", "functional_groups": ["Aldehyde"], "deduction": "An aldehyde is present."}, {"observation": "no reaction with Tollens' reagent", "keywords": ["tollens", "no reaction", "no change"], "reagent": "Tollens' reagent", "reaction": "No oxidation", "functional_groups": ["Not an aldehyde"], "deduction": "A ketone does not react with Tollens' reagent."}, {"observation": "effervescence with aqueous sodium carbonate or sodium hydrogencarbonate", "keywords": ["sodium carbonate", "na2co3", "sodium hydrogencarbonate", "nahco3", "effervescence", "co2"], "reagent": "Na₂CO₃(aq) / NaHCO₃(aq)", "reaction": "Neutralisation", "functional_groups": ["Carboxylic acid"], "deduction": "CO₂ is evolved; a carboxylic acid is present."}, {"observation": "reacts with sodium metal producing hydrogen", "keywords": ["sodium metal", "na", "hydrogen", "h2", "effervescence", "gas"], "reagent": "Reactive metal such as Na or K", "reaction": "Acid–metal displacement", "functional_groups": ["Alcohol", "Phenol", "Carboxylic acid"], "deduction": "An acidic O–H group is present. Quantitative gas data can determine the number of reactive O–H groups."}, {"observation": "soluble in aqueous sodium hydroxide", "keywords": ["soluble", "sodium hydroxide", "naoh", "alkali", "acidic"], "reagent": "NaOH(aq)", "reaction": "Neutralisation", "functional_groups": ["Carboxylic acid", "Phenol"], "deduction": "The compound is acidic enough to react with aqueous alkali."}, {"observation": "soluble in aqueous acid", "keywords": ["soluble", "hydrochloric acid", "hcl", "sulfuric acid", "h2so4", "acid", "basic"], "reagent": "HCl(aq) / H₂SO₄(aq)", "reaction": "Neutralisation", "functional_groups": ["Amine"], "deduction": "An amine is basic and can form an ionic ammonium salt."}, {"observation": "violet complex with neutral aqueous iron(III) chloride", "keywords": ["fecl3", "iron chloride", "violet", "purple", "complex"], "reagent": "Aqueous neutral FeCl₃", "reaction": "Complex formation", "functional_groups": ["Phenol"], "deduction": "A violet complex indicates phenol."}, {"observation": "yellow precipitate with warm alkaline aqueous iodine", "keywords": ["iodine", "i2", "iodoform", "yellow precipitate", "yellow ppt", "antiseptic", "naoh"], "reagent": "Warm alkaline I₂(aq) / NaOH(aq)", "reaction": "Oxidation", "functional_groups": ["Methyl ketone", "CH₃CH(OH)–R alcohol"], "deduction": "CHI₃ (iodoform) is formed. The organic product is a carboxylate salt."}, {"observation": "colourless pungent gas on warming with aqueous sodium hydroxide", "keywords": ["pungent gas", "colourless gas", "ammonia", "nh3", "naoh", "amide"], "reagent": "NaOH(aq), heat", "reaction": "Alkaline hydrolysis", "functional_groups": ["Primary amide"], "deduction": "NH₃ gas is evolved; a primary amide is indicated."}, {"observation": "yellow precipitate with ethanolic silver nitrate", "keywords": ["silver nitrate", "agno3", "ethanolic", "yellow precipitate", "agi", "iodide"], "reagent": "Ethanolic AgNO₃", "reaction": "Nucleophilic substitution", "functional_groups": ["Iodoalkane / C–I bond"], "deduction": "Yellow AgI indicates iodide ion released from an alkyl iodide; an iodine atom directly bonded to benzene is not implied."}, {"observation": "white fumes with PCl5", "keywords": ["pcl5", "white fumes", "hcl", "chloride"], "reagent": "PCl₅", "reaction": "Nucleophilic substitution", "functional_groups": ["Alcohol", "Carboxylic acid"], "deduction": "A reactive –OH-containing functional group may be present; identify the exact group using other observations."}, {"observation": "brown precipitate with cold acidified potassium manganate(VII)", "keywords": ["brown precipitate", "mno2", "cold kmno4", "manganate", "alkene", "diol"], "reagent": "Cold acidified KMnO₄ / KMnO₄ conditions from elucidation", "reaction": "Mild oxidation", "functional_groups": ["Alkene"], "deduction": "The alkene can be oxidised to a diol; MnO₂ may be the brown precipitate under alkaline/cold conditions."}, {"observation": "white crystalline solid after dissolving in hydrochloric acid", "keywords": ["white crystalline", "crystalline solid", "hcl", "ammonium salt"], "reagent": "HCl(aq)", "reaction": "Neutralisation", "functional_groups": ["Amine / phenylamine"], "deduction": "Formation of an ionic ammonium salt supports a basic amine."}, {"observation": "high melting point and crystalline structure", "keywords": ["high melting point", "crystalline", "ionic"], "reagent": "Physical observation", "reaction": "None", "functional_groups": ["Carboxylate salt", "Ammonium salt", "Amino acid"], "deduction": "An ionic compound is possible."}, {"observation": "cis-trans isomerism", "keywords": ["cis-trans", "geometric isomerism", "cis trans"], "reagent": "Physical observation", "reaction": "None", "functional_groups": ["Alkene with two different groups on each carbon", "Suitable ring system"], "deduction": "The structure must permit restricted rotation with the required substituents."}, {"observation": "optically active", "keywords": ["optically active", "chiral", "optical activity"], "reagent": "Physical observation", "reaction": "None", "functional_groups": ["Chiral centre"], "deduction": "A chiral centre (four different groups) or an appropriate non-symmetrical structure is present."}, {"observation": "soluble in water", "keywords": ["water soluble", "soluble in water", "water"], "reagent": "Physical observation", "reaction": "None", "functional_groups": ["Carboxylic acid", "Hydroxy", "Amino"], "deduction": "The molecule can form hydrogen bonds with water."}, {"observation": "insoluble in water", "keywords": ["insoluble", "water insoluble", "hydrophobic"], "reagent": "Physical observation", "reaction": "None", "functional_groups": ["Hydrophobic benzene ring may be present"], "deduction": "A hydrophobic structural feature such as a benzene ring may contribute."}];
+const reactions = [{"reagent": "Limited Cl₂ or Br₂; UV light / hν", "product": "Alkane → halogenoalkane", "type": "Free radical substitution", "fg": ["Alkane C–H"], "note": "Monosubstitution is the main product when the alkane is in excess."}, {"reagent": "Excess O₂", "product": "Alkane → CO₂ + H₂O", "type": "Complete combustion", "fg": ["Alkane"], "note": "Complete oxidation under excess oxygen."}, {"reagent": "Limited O₂", "product": "Alkane → CO + H₂O", "type": "Incomplete combustion", "fg": ["Alkane"], "note": "Incomplete combustion."}, {"reagent": "H₂/Ni, high T & P; or H₂/Pd or Pt", "product": "Alkene → alkane", "type": "Reduction", "fg": ["Alkene C=C"], "note": "Hydrogenation of C=C."}, {"reagent": "X₂ in CCl₄, dark; or X₂(g/l), dark", "product": "Alkene → dihalogenoalkane", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "X = Cl or Br."}, {"reagent": "Aqueous X₂", "product": "Alkene → halogenoalcohol", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "Markovnikov orientation as presented in the concept map."}, {"reagent": "Dry HX(g) or HX in CCl₄", "product": "Alkene → halogenoalkane", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "Apply Markovnikov's Rule."}, {"reagent": "Steam, high T & P, conc. H₃PO₄ catalyst; or cold conc. H₂SO₄ followed by hot water", "product": "Alkene → alcohol", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "Apply Markovnikov's Rule."}, {"reagent": "Alcoholic KOH, heat; or NaOH in ethanol, heat", "product": "Halogenoalkane → alkene", "type": "Elimination", "fg": ["Halogenoalkane C–X"], "note": "Apply Saytzeff's Rule."}, {"reagent": "Cold alkaline KMnO₄", "product": "Alkene → diol", "type": "Mild oxidation", "fg": ["Alkene C=C"], "note": "Forms a vicinal diol."}, {"reagent": "Hot acidified KMnO₄; or hot alkaline KMnO₄", "product": "Alkene → oxidative cleavage products", "type": "Strong oxidation", "fg": ["Alkene C=C"], "note": "Terminal alkene carbons may ultimately give CO₂ + H₂O; cleavage depends on substitution."}, {"reagent": "H₂/Ni, high T & P; or H₂/Pd or Pt", "product": "Alkene → alkane", "type": "Reduction", "fg": ["Alkene C=C"], "note": "Hydrogenation."}, {"reagent": "X₂ + anhydrous FeX₃ / AlX₃ catalyst", "product": "Benzene → halogenoarene", "type": "Electrophilic substitution", "fg": ["Benzene ring"], "note": "X = Cl or Br."}, {"reagent": "R–X + anhydrous FeX₃ / AlX₃", "product": "Benzene → alkylbenzene", "type": "Electrophilic substitution", "fg": ["Benzene ring"], "note": "X = Cl or Br; concept-map preparation route."}, {"reagent": "Conc. HNO₃ + conc. H₂SO₄, 55 °C", "product": "Benzene → nitrobenzene", "type": "Electrophilic substitution", "fg": ["Benzene ring"], "note": "Nitration."}, {"reagent": "Conc. HNO₃ + conc. H₂SO₄, 30 °C", "product": "Methylbenzene → nitro-substituted methylbenzene", "type": "Electrophilic substitution", "fg": ["Benzene ring"], "note": "Nitration of methylbenzene."}, {"reagent": "Limited Cl₂(g) or Br₂(g), UV light", "product": "Methylbenzene → benzyl halide", "type": "Free radical substitution", "fg": ["Benzylic C–H"], "note": "Side-chain substitution."}, {"reagent": "KMnO₄ in dilute H₂SO₄, heat", "product": "Methylbenzene / alkylbenzene → benzoic acid", "type": "Side-chain oxidation", "fg": ["Alkylbenzene side chain"], "note": "Oxidation of the side chain."}, {"reagent": "HX(g)", "product": "Alkene → halogenoalkane", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "Preparation route shown in the concept map."}, {"reagent": "X₂, UV light", "product": "Alkane → halogenoalkane", "type": "Free radical substitution", "fg": ["Alkane C–H"], "note": "X = Cl or Br."}, {"reagent": "NaOH(aq) or KOH(aq), heat", "product": "Halogenoalkane → alcohol", "type": "Nucleophilic substitution", "fg": ["C–X"], "note": "Aqueous hydroxide gives alcohol."}, {"reagent": "HX gas (X = Cl or Br), heat; HCl(g)/heat; NaBr + conc. H₂SO₄/heat; anhydrous PCl₃/PBr₃; I₂ + red P; PCl₅; SOCl₂", "product": "Alcohol → halogenoalkane", "type": "Nucleophilic substitution", "fg": ["Alcohol C–OH"], "note": "Several reagents convert an alcohol to a halogenoalkane."}, {"reagent": "Ethanolic KCN, heat under reflux", "product": "Halogenoalkane → nitrile", "type": "Nucleophilic substitution", "fg": ["C–X"], "note": "Adds one carbon compared with the starting halogenoalkane."}, {"reagent": "Excess conc. NH₃ in ethanol, heat in sealed tube", "product": "Halogenoalkane → amine", "type": "Nucleophilic substitution", "fg": ["C–X"], "note": "Gives an amine with the same number of carbons."}, {"reagent": "HCl(aq) or H₂SO₄(aq), heat under reflux", "product": "Halogenoalkane → carboxylic acid", "type": "Acidic hydrolysis", "fg": ["Nitrile / relevant hydrolysable group"], "note": "The concept map gives this route from nitrile to carboxylic acid."}, {"reagent": "LiAlH₄ in dry ether; or H₂/Ni; or H₂/Pd or Pt", "product": "Halogenoalkane → alkane", "type": "Reduction", "fg": ["C–X"], "note": "Reduction route shown in the concept map."}, {"reagent": "NaOH(aq) or KOH(aq), heat", "product": "Halogenoalkane → alcohol", "type": "Nucleophilic substitution", "fg": ["C–X"], "note": "Preparation of alcohol."}, {"reagent": "HX gas / ZnCl₂ route / PCl₃/PBr₃ / PCl₅ / SOCl₂", "product": "Alcohol → halogenoalkane", "type": "Nucleophilic substitution", "fg": ["Alcohol C–OH"], "note": "Preparation route."}, {"reagent": "Conc. H₂SO₄, heat", "product": "Alcohol → ester", "type": "Condensation", "fg": ["Alcohol –OH + carboxylic acid"], "note": "Ester formation is shown as condensation."}, {"reagent": "Reactive metal (Na or K)", "product": "Alcohol → alkoxide + H₂", "type": "Acid–metal displacement", "fg": ["Alcohol O–H"], "note": "½ H₂ is produced per O–H group reacting."}, {"reagent": "Steam, conc. H₃PO₄, high T & P; or cold conc. H₂SO₄ followed by hot water", "product": "Alkene → alcohol", "type": "Electrophilic addition", "fg": ["Alkene C=C"], "note": "Apply Markovnikov's Rule."}, {"reagent": "Excess conc. H₂SO₄, heat; Al₂O₃ catalyst, heat; or excess conc. H₃PO₄, heat", "product": "Alcohol → alkene", "type": "Elimination", "fg": ["Alcohol C–OH"], "note": "Apply Saytzeff's Rule."}, {"reagent": "K₂Cr₂O₇ or KMnO₄, dilute H₂SO₄", "product": "1° alcohol → aldehyde → carboxylic acid", "type": "Oxidation", "fg": ["1° alcohol"], "note": "Immediate distillation can stop at the aldehyde; further oxidation gives carboxylic acid."}, {"reagent": "K₂Cr₂O₇ or KMnO₄, dilute H₂SO₄, heat", "product": "2° alcohol → ketone", "type": "Oxidation", "fg": ["2° alcohol"], "note": "Secondary alcohol is oxidised to a ketone."}, {"reagent": "K₂Cr₂O₇ or KMnO₄, dilute H₂SO₄, heat", "product": "3° alcohol → no reaction", "type": "Resistant to oxidation", "fg": ["3° alcohol"], "note": "A 3° alcohol is not oxidised under these conditions."}, {"reagent": "Alkaline I₂(aq)", "product": "CH₃CH(OH)–R → carboxylate + CHI₃", "type": "Oxidation / iodoform reaction", "fg": ["Methyl secondary alcohol"], "note": "Yellow CHI₃ precipitate."}, {"reagent": "X₂ in organic solvent", "product": "Phenol → mono-halogenated phenol products", "type": "Electrophilic substitution", "fg": ["Phenol ring"], "note": "Substitution on the activated ring."}, {"reagent": "X₂(aq)", "product": "Phenol → 2,4,6-trihalophenol", "type": "Electrophilic substitution", "fg": ["Phenol ring"], "note": "Aqueous halogen gives extensive substitution."}, {"reagent": "Dilute HNO₃", "product": "Phenol → nitrophenol isomers", "type": "Electrophilic substitution", "fg": ["Phenol ring"], "note": "Ortho/para products shown."}, {"reagent": "Conc. HNO₃", "product": "Phenol → 2,4,6-trinitrophenol", "type": "Electrophilic substitution", "fg": ["Phenol ring"], "note": "Multiple nitration."}, {"reagent": "NaOH(aq)", "product": "Phenol → sodium phenoxide", "type": "Neutralisation", "fg": ["Phenol O–H"], "note": "KOH can be used to obtain the potassium salt."}, {"reagent": "Reactive metal (Na or K)", "product": "Phenol → phenoxide salt + H₂", "type": "Acid–metal displacement", "fg": ["Phenol O–H"], "note": "½ H₂ per phenol O–H."}, {"reagent": "Aqueous neutral FeCl₃", "product": "Phenol → violet complex", "type": "Complex formation", "fg": ["Phenol"], "note": "Qualitative test."}, {"reagent": "R'–COCl", "product": "Phenol → ester", "type": "Condensation", "fg": ["Phenol O–H"], "note": "Acylation/condensation shown in the concept map."}, {"reagent": "K₂Cr₂O₇ or KMnO₄, dilute H₂SO₄, heat", "product": "1° alcohol → aldehyde; 2° alcohol → ketone", "type": "Oxidation", "fg": ["1° alcohol", "2° alcohol"], "note": "Preparation of carbonyl compounds."}, {"reagent": "LiAlH₄ in dry ether; NaBH₄ in ethanol; H₂/Ni; H₂/Pd or Pt", "product": "Aldehyde → 1° alcohol; ketone → 2° alcohol", "type": "Reduction", "fg": ["Aldehyde C=O", "Ketone C=O"], "note": "Carbonyl reduction."}, {"reagent": "Tollens' reagent, heat", "product": "Aldehyde → carboxylate + Ag", "type": "Oxidation", "fg": ["Aldehyde"], "note": "Only aldehydes react."}, {"reagent": "Fehling's reagent, heat", "product": "Aliphatic aldehyde → carboxylate + Cu₂O", "type": "Oxidation", "fg": ["Aliphatic aldehyde"], "note": "Red precipitate of Cu₂O."}, {"reagent": "2,4-DNPH, heat", "product": "Aldehyde/ketone → hydrazone", "type": "Condensation", "fg": ["Carbonyl group"], "note": "Orange precipitate."}, {"reagent": "HCN(aq), trace NaOH or NaCN, cold", "product": "Aldehyde/ketone → cyanohydrin", "type": "Nucleophilic addition", "fg": ["Carbonyl C=O"], "note": "Adds CN and OH across C=O."}, {"reagent": "Reactive metals (Na or K)", "product": "Carboxylic acid → carboxylate salt + H₂", "type": "Acid–metal displacement", "fg": ["Carboxylic acid O–H"], "note": "½ H₂ per acidic proton."}, {"reagent": "NaOH(aq) or KOH(aq)", "product": "Carboxylic acid → carboxylate salt + H₂O", "type": "Neutralisation", "fg": ["Carboxylic acid"], "note": "Base neutralisation."}, {"reagent": "Na₂CO₃(aq) or NaHCO₃(aq)", "product": "Carboxylic acid → carboxylate + CO₂ + H₂O", "type": "Neutralisation", "fg": ["Carboxylic acid"], "note": "CO₂ effervescence."}, {"reagent": "PCl₅; PCl₃ (heat); or anhydrous SOCl₂", "product": "Carboxylic acid → acyl chloride", "type": "Nucleophilic acyl substitution", "fg": ["Carboxylic acid"], "note": "HCl is formed; acyl chloride is produced."}, {"reagent": "R'–OH, conc. H₂SO₄ catalyst, heat", "product": "Carboxylic acid + alcohol → ester + H₂O", "type": "Condensation", "fg": ["Carboxylic acid", "Alcohol"], "note": "Esterification."}, {"reagent": "HCl(aq) or H₂SO₄(aq), heat under reflux", "product": "Ester → carboxylic acid + alcohol", "type": "Acidic hydrolysis", "fg": ["Ester"], "note": "Acidic hydrolysis."}, {"reagent": "NaOH(aq) or KOH(aq), heat under reflux", "product": "Ester → carboxylate + alcohol", "type": "Basic hydrolysis", "fg": ["Ester"], "note": "Saponification."}, {"reagent": "HCl(aq) or H₂SO₄(aq), heat under reflux", "product": "Amide → carboxylic acid + ammonium salt", "type": "Acidic hydrolysis", "fg": ["Amide"], "note": "Esters and amides can be hydrolysed to carboxylic acids."}, {"reagent": "NaOH(aq) or KOH(aq), heat under reflux", "product": "Amide → carboxylate + NH₃ / ammonium product", "type": "Basic hydrolysis", "fg": ["Amide"], "note": "Primary amides give NH₃ under alkaline hydrolysis."}, {"reagent": "LiAlH₄ in dry ether", "product": "Ester → two alcohols", "type": "Reduction", "fg": ["Ester"], "note": "The ester is reduced to the corresponding two alcohols."}, {"reagent": "LiAlH₄ in dry ether", "product": "Amide → amines", "type": "Reduction", "fg": ["Amide"], "note": "The amide is reduced to the corresponding amines."}, {"reagent": "K₂Cr₂O₇ or KMnO₄, dilute H₂SO₄, heat", "product": "Aldehyde → carboxylic acid", "type": "Oxidation", "fg": ["Aldehyde"], "note": "Further oxidation."}, {"reagent": "HCl(aq) or H₂SO₄(aq), heat under reflux", "product": "Nitrile → carboxylic acid", "type": "Acidic hydrolysis", "fg": ["Nitrile"], "note": "Hydrolysis of nitrile."}, {"reagent": "Excess conc. NH₃ in ethanol, heat in sealed tube", "product": "Halogenoalkane → primary amine", "type": "Nucleophilic substitution", "fg": ["Halogenoalkane"], "note": "Preparation of aliphatic amine."}, {"reagent": "LiAlH₄ in dry ether; or H₂/Ni; or H₂/Pd or Pt", "product": "Nitrile → primary amine", "type": "Reduction", "fg": ["Nitrile"], "note": "Reduction of nitrile."}, {"reagent": "HCl(aq) or H₂SO₄(aq)", "product": "Amine → ammonium salt", "type": "Neutralisation", "fg": ["Amine"], "note": "Basic amine is protonated."}, {"reagent": "R'–COCl", "product": "Amine → amide", "type": "Condensation", "fg": ["Amine", "Acyl chloride"], "note": "Acylation/condensation."}, {"reagent": "Sn in conc. HCl, heat followed by NaOH(aq)", "product": "Nitrobenzene → phenylamine", "type": "Reduction", "fg": ["Nitro group"], "note": "Reduction of nitro group."}, {"reagent": "Aqueous Br₂", "product": "Phenylamine → 2,4,6-tribromophenylamine", "type": "Electrophilic substitution", "fg": ["Phenylamine ring"], "note": "White precipitate with excess bromine water."}, {"reagent": "HCl(aq) or H₂SO₄(aq)", "product": "Phenylamine → anilinium salt", "type": "Neutralisation", "fg": ["Amine"], "note": "Ionic ammonium salt forms."}, {"reagent": "HCl(aq) or H₂SO₄(aq)", "product": "Amino acid → ammonium carboxylic acid salt", "type": "Neutralisation", "fg": ["Amine"], "note": "Amine is protonated."}, {"reagent": "NaOH(aq)", "product": "Amino acid → sodium carboxylate", "type": "Neutralisation", "fg": ["Carboxylic acid"], "note": "Carboxylic acid is deprotonated."}, {"reagent": "Na₂CO₃(aq) or NaHCO₃(aq)", "product": "Amino acid → carboxylate + CO₂", "type": "Neutralisation", "fg": ["Carboxylic acid"], "note": "CO₂ effervescence."}, {"reagent": "Condensation", "product": "Amino acids → peptide/amide linkage", "type": "Condensation", "fg": ["Amine", "Carboxylic acid"], "note": "Water is removed to form the amide linkage."}];
+
+function norm(s) {
+ return (s||"").toLowerCase().replace(/₂/g,"2").replace(/₃/g,"3").replace(/₄/g,"4").replace(/₅/g,"5").replace(/₆/g,"6").replace(/₇/g,"7").replace(/₈/g,"8").replace(/₉/g,"9").replace(/₁/g,"1").replace(/₀/g,"0").replace(/[^a-z0-9]+/g," ").trim();
+}
+function score(query,text) {
+ const q=norm(query),t=norm(text); if(!q)return 0;
+ const words=[...new Set(q.split(/\s+/).filter(Boolean))]; let s=0;
+ for(const w of words) if(t.includes(w)) s += w.length>=5?2:1;
+ if(t.includes(q)) s+=5; return s;
+}
+function esc(s) {return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function resultObs(x) {
+ return `<div class="result"><div class="badge">${esc(x.reaction)}</div><h3>${esc(x.observation)}</h3>
+ <div class="meta"><b>Reagent:</b> ${esc(x.reagent)}</div>
+ <div class="fg">${x.functional_groups.map(g=>`<span class="fgtag">${esc(g)}</span>`).join("")}</div>
+ <div class="meta" style="margin-top:9px"><b>Deduction:</b> ${esc(x.deduction)}</div></div>`;
+}
+function resultRxn(x) {
+ return `<div class="result"><div class="badge">${esc(x.type)}</div><h3>${esc(x.product)}</h3>
+ <div class="meta"><b>Reagent & conditions:</b> ${esc(x.reagent)}</div>
+ <div class="fg">${x.fg.map(g=>`<span class="fgtag">${esc(g)}</span>`).join("")}</div>
+ <div class="meta" style="margin-top:9px"><b>Note:</b> ${esc(x.note)}</div></div>`;
+}
+function searchObs() {
+ const q=document.getElementById("obsSearch").value;
+ const scored=observations.map(x=>({x,s:score(q,[x.observation,x.reagent,x.reaction,x.functional_groups.join(" "),x.deduction,x.keywords.join(" ")].join(" "))})).filter(a=>a.s>0).sort((a,b)=>b.s-a.s);
+ document.getElementById("obsResults").innerHTML=scored.length?scored.slice(0,12).map(a=>resultObs(a.x)).join(""):`<div class="empty">No close match. Try fewer words such as <b>bromine</b>, <b>DNPH</b>, <b>Fehling</b>, <b>iodine</b>, <b>NaHCO₃</b>, or <b>permanganate</b>.</div>`;
+}
+function searchRxn() {
+ const q=document.getElementById("rxnSearch").value;
+ const scored=reactions.map(x=>({x,s:score(q,[x.reagent,x.product,x.type,x.fg.join(" "),x.note].join(" "))})).filter(a=>a.s>0).sort((a,b)=>b.s-a.s);
+ document.getElementById("rxnResults").innerHTML=scored.length?scored.slice(0,20).map(a=>resultRxn(a.x)).join(""):`<div class="empty">No close match. Try a reagent name, e.g. <b>LiAlH₄</b>, <b>KMnO₄</b>, <b>NaOH</b>, <b>H₂/Ni</b>, <b>Br₂</b>, <b>KCN</b>, or <b>HCl heat reflux</b>.</div>`;
+}
+function librarySearch() {
+ const q=document.getElementById("librarySearch").value;
+ const scored=reactions.map(x=>({x,s:score(q,[x.reagent,x.product,x.type,x.fg.join(" "),x.note].join(" "))})).filter(a=>a.s>0).sort((a,b)=>b.s-a.s);
+ document.getElementById("libraryResults").innerHTML=scored.length?scored.map(a=>resultRxn(a.x)).join(""):`<div class="empty">No match.</div>`;
+}
+function setObs(v){document.getElementById("obsSearch").value=v;searchObs();}
+function setRxn(v){document.getElementById("rxnSearch").value=v;searchRxn();}
+document.querySelectorAll(".navbtn").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ btn.classList.add("active");document.getElementById(btn.dataset.tab).classList.add("active");
+}));
+document.getElementById("obsSearch").addEventListener("keydown",e=>{if(e.key==="Enter")searchObs();});
+document.getElementById("rxnSearch").addEventListener("keydown",e=>{if(e.key==="Enter")searchRxn();});
+document.getElementById("librarySearch").addEventListener("keydown",e=>{if(e.key==="Enter")librarySearch();});
+document.getElementById("obsCount").textContent=observations.length;
+document.getElementById("rxnCount").textContent=reactions.length;
+document.getElementById("obsResults").innerHTML =
+  '<div class="empty">Try a button above, or type an observation such as <b>orange bromine decolourises</b>.</div>';
+document.getElementById("rxnResults").innerHTML =
+  '<div class="empty">Try a button above, or type a reagent such as <b>LiAlH₄ dry ether</b>.</div>';
+
+</script>
+</body>
+</html>
